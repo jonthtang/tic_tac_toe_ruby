@@ -33,6 +33,7 @@ def move_update (board, player_input)
   num = turn_count(board)
   move = convert_to_index(player_input)
   if board[move] == "O" || board[move] == "X"
+    system "clear"
     puts "Position taken! Please try again!"
   else
     if num%2!=0
@@ -66,33 +67,49 @@ def win_status(arrays_in_array)
  end
 end
 
-board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-puts "Let's play a game. Please choose a number between 1-9."
-puts
-
-loop do
-  display_board(board)
-  player_turn_message(board)
-  input = gets.chomp
-  if input == "exit"
-    puts "Bye bye!"
-    break
-  else
-    ref_array=["1","2","3","4","5","6","7","8","9"]
-    if ref_array.include?(input)
-      move_update(board,input)
-      if turn_count(board) > board.size
-        puts "It's a draw! What a shame..."
-         display_board(board)
-          break
-      end
+def play_again
+  puts "Play again? Type 'yes' or 'y' to play again. Any other key will exit the system."
+  input = gets.chomp.downcase
+    if input == "yes"|| input == "y"
+      game_on
     else
-      puts "I'm sorry, your input in invalid. Please choose a number between 1-9."
+      puts "Thanks for playing!"
+    end
+end
+
+def game_on
+  board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  puts "Let's play a game. Please choose a number between 1-9. You may stop the game at any time by typing 'exit'!"
+  loop do
+    display_board(board)
+    player_turn_message(board)
+    input = gets.chomp
+    if input == "exit"
+      puts "Bye! Thanks for playing!"
+      break
+    else
+      ref_array=["1","2","3","4","5","6","7","8","9"]
+      if ref_array.include?(input)
+        system "clear"
+        move_update(board,input)
+        if turn_count(board) > board.size
+          puts "It's a draw! What a shame..."
+          display_board(board)
+          play_again
+          break
+        end
+      else
+        system "clear"
+        puts "I'm sorry, your input in invalid. Please choose a number between 1-9."
+      end
+    end
+    check_win = board_splits_for_check(board)
+    if win_status(check_win) == true
+      display_board(board)
+      play_again
+      break
     end
   end
-  check_win = board_splits_for_check(board)
-  if win_status(check_win) == true
-    display_board(board)
-    break
-  end
 end
+
+game_on
