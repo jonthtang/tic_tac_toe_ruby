@@ -25,13 +25,23 @@ def player_turn_message(board)
   end
 end
 
-def computer_turn_message(board)
+def computer_turn_message_player_first(board)
   num = turn_count(board)
   if num%2!=0
     puts "It's player one's (O) turn! Please make a move!"
   else
     puts "It's the computer's (X) turn! Please wait while it thinks!"
     sleep 1
+  end
+end
+
+def computer_turn_message_player_second(board)
+  num = turn_count(board)
+  if num%2!=0
+    puts "It's the computer's (O) turn! Please wait while it thinks!"
+    sleep 1
+  else
+    puts "It's the computer's (X) turn! Please make a move!"
   end
 end
 
@@ -126,69 +136,139 @@ def pvp_game
   end
 end
 
-def pvc_game
+def pvc_game(turn_selection)
+  choice = turn_selection
   board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-  puts "Let's play a game. You are player '1'. Please choose a number between 1-9. You may stop the game at any time by typing 'exit'!"
-  loop do
-    if turn_count(board).odd?
-      display_board(board)
-      player_turn_message(board)
-      input = gets.chomp
-      if input == "exit"
-        puts "Bye! Thanks for playing!"
-        break
-      else
-        ref_array=["1","2","3","4","5","6","7","8","9"]
-        if ref_array.include?(input)
-          system "clear"
-          move_update(board,input)
-          if turn_count(board) > board.size
-            puts "It's a draw! What a shame..."
-            display_board(board)
-            play_again
-            break
-          end
+  if choice == "1"
+    system "clear"
+    puts "Let's play a game. You are player '1'. Please choose a number between 1-9. You may stop the game at any time by typing 'exit'!"
+    loop do
+      if turn_count(board).odd?
+        display_board(board)
+        computer_turn_message_player_first(board)
+        input = gets.chomp
+        if input == "exit"
+          puts "Bye! Thanks for playing!"
+          break
         else
-          system "clear"
-          puts "I'm sorry, your input in invalid. Please choose a number between 1-9."
+          ref_array=["1","2","3","4","5","6","7","8","9"]
+          if ref_array.include?(input)
+            system "clear"
+            move_update(board,input)
+            if turn_count(board) > board.size
+              puts "It's a draw! What a shame..."
+              display_board(board)
+              play_again
+              break
+            end
+          else
+            system "clear"
+            puts "I'm sorry, your input in invalid. Please choose a number between 1-9."
+          end
+        end
+        check_win = board_splits_for_check(board)
+        if win_status(check_win) == true
+          display_board(board)
+          play_again
+          break
+        end
+      else
+        display_board(board)
+        computer_turn_message_player_first(board)
+        system "clear"
+        available= board.select {|num| num.is_a? Integer}
+        comp_move = available.sample
+        move_update(board,comp_move)
+        if turn_count(board) > board.size
+          puts "It's a draw! What a shame..."
+          display_board(board)
+          play_again
+          break
+        end
+        check_win = board_splits_for_check(board)
+        if win_status(check_win) == true
+          display_board(board)
+          play_again
+          break
         end
       end
-      check_win = board_splits_for_check(board)
-      if win_status(check_win) == true
+    end
+  elsif choice == "2"
+    system "clear"
+    puts "Let's play a game. You are player '2'. The computer goes first."
+    loop do
+      if turn_count(board).even?
         display_board(board)
-        play_again
-        break
-      end
-    else
-      display_board(board)
-      computer_turn_message(board)
-      system "clear"
-      available= board.select {|num| num.is_a? Integer}
-      comp_move = available.sample
-      move_update(board,comp_move)
-      if turn_count(board) > board.size
-        puts "It's a draw! What a shame..."
+        computer_turn_message_player_second(board)
+        input = gets.chomp
+        if input == "exit"
+          puts "Bye! Thanks for playing!"
+          break
+        else
+          ref_array=["1","2","3","4","5","6","7","8","9"]
+          if ref_array.include?(input)
+            system "clear"
+            move_update(board,input)
+            if turn_count(board) > board.size
+              puts "It's a draw! What a shame..."
+              display_board(board)
+              play_again
+              break
+            end
+          else
+            system "clear"
+            puts "I'm sorry, your input in invalid. Please choose a number between 1-9."
+          end
+        end
+        check_win = board_splits_for_check(board)
+        if win_status(check_win) == true
+          display_board(board)
+          play_again
+          break
+        end
+      else
         display_board(board)
-        play_again
-        break
-      end
-      check_win = board_splits_for_check(board)
-      if win_status(check_win) == true
-        display_board(board)
-        play_again
-        break
+        computer_turn_message_player_second(board)
+        system "clear"
+        available= board.select {|num| num.is_a? Integer}
+        comp_move = available.sample
+        move_update(board,comp_move)
+        if turn_count(board) > board.size
+          puts "It's a draw! What a shame..."
+          display_board(board)
+          play_again
+          break
+        end
+        check_win = board_splits_for_check(board)
+        if win_status(check_win) == true
+          display_board(board)
+          play_again
+          break
+        end
       end
     end
   end
 end
 
+def turn_selection
+  system "clear"
+  puts "Type '1' if you want to go first.\nType '2' if you want to go second."
+  input = gets.chomp
+  unless input == "1" || input == "2"
+    system "clear"
+    puts "I didn't understand that. Please try again."
+    turn_selection
+  end
+  return input
+end
+
 def game_on
-  puts "Start a new game.\nPlease select '1' for player vs player\nPlease select '2' for player vs computer."
+  puts "Start a new game.\nPlease select '1' for player vs player.\nPlease select '2' for player vs computer."
   input = gets.chomp
   if input == "1"
     pvp_game
   elsif input == "2"
-    pvc_game
+    pvc_game(turn_selection)
   else
     system "clear"
     puts "I didn't understand that. Please try again."
